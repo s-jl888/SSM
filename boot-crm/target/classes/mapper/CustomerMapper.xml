@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.dao.CustomerMapper" >
+    <!--SQL片段  -->
+    <sql id="selectCustomerListWhere">
+        <where>
+            <if test="custName != null" >
+                cust_name like "%"#{custName}"%"
+            </if>
+            <if test="custSource != null" >
+                and cust_source = #{custSource}
+            </if>
+            <if test="custIndustry != null" >
+                and cust_industry = #{custIndustry}
+            </if>
+            <if test="custLevel != null" >
+                and cust_level = #{custLevel}
+            </if>
+        </where>
+    </sql>
+    <!-- 查询客户列表  -->
+    <select id="selectCustomerList" parameterType="customer"
+            resultType="customer">
+        SELECT
+        cust_id,
+        cust_name,
+        cust_user_id,
+        cust_create_id,
+        b.dict_item_name cust_source,
+        c.dict_item_name cust_industry,
+        d.dict_item_name cust_level,
+        cust_linkman,
+        cust_phone,
+        cust_mobile,
+        cust_createtime
+        FROM
+        customer a
+        LEFT JOIN (
+        SELECT
+        dict_id,
+        dict_item_name
+        FROM
+        base_dict
+        WHERE
+        dict_type_code = '002'
+        ) b ON a.cust_source = b.dict_id
+        LEFT JOIN (
+        SELECT
+        dict_id,
+        dict_item_name
+        FROM
+        base_dict
+        WHERE
+        dict_type_code = '001'
+        ) c ON a.cust_industry = c.dict_id
+        LEFT JOIN (
+        SELECT
+        dict_id,
+        dict_item_name
+        FROM
+        base_dict
+        WHERE
+        dict_type_code = '006'
+        ) d ON a.cust_level = d.dict_id
+        <include refid="selectCustomerListWhere"/>
+        <!-- 执行分页查询 -->
+        <if test="start !=null and rows != null">
+            limit #{start},#{rows}
+        </if>
+    </select>
+    <!-- 查询客户总数 -->
+    <select id="selectCustomerListCount" parameterType="customer"
+            resultType="Integer">
+        select count(*) from customer
+        <include refid="selectCustomerListWhere"/>
+    </select>
+
+    <!-- 添加客户 -->
+    <insert id="createCustomer" parameterType="customer">
+	    insert into customer(
+	                     cust_name,
+	                     cust_user_id,
+	                     cust_create_id,
+	                     cust_source,
+	                     cust_industry,
+	                     cust_level,
+	                     cust_linkman,
+	                     cust_phone,
+	                     cust_mobile,
+	                     cust_zipcode,
+	                     cust_address,
+	                     cust_createtime
+	             )
+	             values(#{custName},
+	                    #{custUserId},
+	                    #{custCreateId},
+	                    #{custSource},
+	                    #{custIndustry},
+	                    #{custLevel},
+	                    #{custLinkman},
+	                    #{custPhone},
+	                    #{custMobile},
+	                    #{custZipcode},
+	                    #{custAddress},
+	                    #{custCreatetime}
+	            )
+	</insert>
+    <!-- 根据id获取客户信息 -->
+    <select id="getCustomerById" parameterType="Integer"
+            resultType="customer">
+	    select * from customer where cust_id = #{id}
+	</select>
+    <!-- 更新客户 -->
+    <update id="updateCustomer" parameterType="customer">
+        update customer
+        <set>
+            <if test="custName!=null">
+                cust_name=#{custName},
+            </if>
+            <if test="custUserId!=null">
+                cust_user_id=#{custUserId},
+            </if>
+            <if test="custCreateId!=null">
+                cust_create_id=#{custCreateId},
+            </if>
+            <if test="custSource!=null">
+                cust_source=#{custSource},
+            </if>
+            <if test="custIndustry!=null">
+                cust_industry=#{custIndustry},
+            </if>
+            <if test="custLevel!=null">
+                cust_level=#{custLevel},
+            </if>
+            <if test="custLinkman!=null">
+                cust_linkman=#{custLinkman},
+            </if>
+            <if test="custPhone!=null">
+                cust_phone=#{custPhone},
+            </if>
+            <if test="custMobile!=null">
+                cust_mobile=#{custMobile},
+            </if>
+            <if test="custZipcode!=null">
+                cust_zipcode=#{custZipcode},
+            </if>
+            <if test="custAddress!=null">
+                cust_address=#{custAddress},
+            </if>
+            <if test="custCreatetime!=null">
+                cust_createtime=#{custCreatetime},
+            </if>
+        </set>
+        where cust_id=#{custId}
+    </update>
+    <!-- 删除客户 -->
+    <delete id="deleteCustomer" parameterType="Integer">
+	    delete from customer where cust_id=#{id}
+	</delete>
+</mapper>
